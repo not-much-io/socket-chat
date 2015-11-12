@@ -1,6 +1,8 @@
-(ns socket-chat.core)
+(ns socket-chat.core
+  ()
+  (:gen-class))
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(defn -main [& args]
+  (if (not= (count args) 1)
+    (println "Number of arguments")
+    (comment "Add code here")))
