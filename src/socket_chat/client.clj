@@ -5,7 +5,7 @@
 (defn get-input
   []
   (println "Enter a message to send: ")
-  (str (read-line) "\n"))
+  (str (read-line) (newline)))
 
 (defn start-client
   [ip port]
@@ -14,3 +14,9 @@
     (loop [msg (get-input)]
       (send-msg client-socket msg)
       (recur (get-input)))))
+
+(defn handle-starting-client
+  [opts]
+  (let [ip    (:ip opts)
+        port  (:port opts)]
+    (start-client ip port)))

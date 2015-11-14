@@ -14,3 +14,8 @@
     (loop [msg-in  (receive-msg sock)]
       (message-handler msg-in)
       (recur (receive-msg sock)))))
+
+(defn handle-starting-server
+  [opts]
+  (let [port (:port opts)]
+    (start-server port)))
