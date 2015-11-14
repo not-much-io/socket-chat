@@ -4,7 +4,7 @@
 
 (defn get-input
   []
-  (println "Enter a message to send: ")
+  (print "$ ")
   (str (read-line) (newline)))
 
 (defn start-client
