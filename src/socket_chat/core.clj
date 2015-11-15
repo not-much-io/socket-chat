@@ -30,12 +30,13 @@
 (defn -main
   [& args]
   (if (seq? args)
-    (let [args-map (parse-opts args cli-options)
-          opts     (:options args-map)
-          errors   (:errors args-map)
-          _        (if (seq? errors)
-                     (println errors))
-          mode     (:mode opts)]
+    (let [args-map  (parse-opts args cli-options)
+          opts      (:options args-map)
+          _         (println opts)
+          errors    (:errors args-map)
+          _         (if (seq? errors)
+                      (println errors))
+          mode      (:mode opts)]
       (cond (= mode "server") (handle-starting-server opts)
             (= mode "client") (handle-starting-client opts)))
     (usage)))
