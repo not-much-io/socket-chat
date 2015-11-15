@@ -1,13 +1,9 @@
 (ns socket-chat.core
   (:require [socket-chat.server :refer [handle-starting-server]]
             [socket-chat.client :refer [handle-starting-client]]
+            [socket-chat.socket-chat-util :refer [in?]]
             [clojure.tools.cli  :refer [parse-opts]])
   (:gen-class))
-
-(defn in?
-  "true if seq contains elm"
-  [seq elm]
-  (some #(= elm %) seq))
 
 (def cli-options [["-m" "--mode MODE" "Server/Client"
                    :default "server"

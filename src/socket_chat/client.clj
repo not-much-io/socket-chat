@@ -4,31 +4,47 @@
 
 (def user-profile (atom {}))
 
-(defn build-msg [msg]
-  (str (:handle-name user-profile) msg))
+(defn- build-msg [msg]
+  (str (:handle-name @user-profile) "|" msg))
 
-(defn prompt-for-input
+(defn- prompt-for-input
   [prompt]
   (print prompt)
   (flush))
 
-(defn get-input
+(defn- get-input
   []
   (prompt-for-input "$ ")
   (str (read-line) "\n"))
 
-(defn get-handle-name
+(defn- get-handle-name
   []
   (prompt-for-input "Enter a handle name: ")
-  (str (read-line) "\n"))
+  (str (read-line)))
 
-(defn start-client
+(defn- message-receiver-loop
+  [connection]
+  (println "Starting message receiving loop.")
+  (loop [in-msg (receive-msg connection)]
+    (println in-msg)
+    (recur (receive-msg connection))))
+
+(defn- start-listener-thread
+  [connection]
+  (println "Starting listener thread.")
+  (doto
+    (Thread. #(message-receiver-loop connection))
+    (.setDaemon true)
+    (.start)))
+
+(defn- start-client
   [ip port]
   (println "Running client..")
-  (with-open [client-socket (Socket. ip port)]
-    (send-msg client-socket (:handle-name user-profile))
+  (with-open [server-socket (Socket. ip port)]
+    (send-msg server-socket (str (:handle-name @user-profile) "\n"))
+    (start-listener-thread server-socket)
     (loop [msg (get-input)]
-      (send-msg client-socket (build-msg msg))
+      (send-msg server-socket (build-msg msg))
       (recur (get-input)))))
 
 (defn handle-starting-client
