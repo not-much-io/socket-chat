@@ -7,7 +7,7 @@
 
 (defn- message-handler
   [msg]
-  (let [sender (first (clojure.string/split msg #"\|"))
+  (let [sender (first (clojure.string/split msg #" says: "))
         conns  (filter #(not= sender (:handle-name %)) @connections)]
     (doall (for [conn conns]
              (send-msg (:new-conn conn) (str msg "\n"))))))
@@ -64,5 +64,5 @@
 
 (defn handle-starting-server
   [opts]
-  (let [port (:port opts)]
+  (let [port (Integer/parseInt (:-p opts))]
     (start-server port)))

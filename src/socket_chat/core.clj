@@ -1,39 +1,58 @@
 (ns socket-chat.core
   (:require [socket-chat.server :refer [handle-starting-server]]
             [socket-chat.client :refer [handle-starting-client]]
-            [socket-chat.socket-chat-util :refer [in?]]
-            [clojure.tools.cli  :refer [parse-opts]])
+            [socket-chat.socket-chat-util :refer [in?]])
   (:gen-class))
 
-(def cli-options [["-m" "--mode MODE" "Server/Client"
-                   :default "server"
-                   :validate [#(in? #{"client" "server"}
-                                    (clojure.string/lower-case %))
-                              "Mode must be either client or server"]]
-                  ["-i" "--ip" "IP address of server"
-                   :default "localhost"]
-                  ["-p" "--port"
-                   :default 8989
-                   :parse-fn #(Integer. %)]])
 
 (defn usage
   []
-  (println " -m or --mode is for MODE either server or client (default server)\n"
-           "-i or --ip   is for the IP address of the server (default hostname)\n"
-           "-p or --port is for the PORT to be connected to  (default 8989)\n"
-           "ex. java -jar socket-chat.jar -m client -i 85.253.154.169 -p 8989\n"))
+  (println " -m is for MODE either server or client\n"
+           "-i is for the IP address of the server\n"
+           "-p is for the PORT to be connected to\n"
+           "ex. java -jar socket-chat.jar -m client -i 85.253.154.169 -p 8989\n\n"))
+
+(defn- valid-client-params? [args-map]
+  (let [port (:-p args-map)
+        ip   (:-i args-map)]
+    (not (or (nil? port)
+             (nil? ip)))))
+
+(defn- valid-server-params? [args-map]
+  (let [port (:-p args-map)]
+    (not (nil? port))))
+
+(defn- valid-args? [args-map]
+  (let [mode (:-m args-map)]
+    (cond (= mode "server") (valid-server-params? args-map)
+          (= mode "client") (valid-client-params? args-map)
+          :else false)))
+
+(defn- parse-args [args]
+  (if (not-empty args)
+    (let [args-part (partition 2 args)
+          args-map  (loop [args-map {}
+                           args args-part]
+                      (if (empty? args)
+                        args-map
+                        (let [pair (last args)]
+                          (recur (assoc args-map (keyword (first pair))
+                                                 (second pair))
+                                 (drop-last args)))))]
+      (if (valid-args? args-map)
+        args-map
+        (do (println "Invalid arguments.")
+            nil)))
+    nil))
 
 (defn -main
   [& args]
-  (if (seq? args)
-    (let [args-map  (parse-opts args cli-options)
-          opts      (:options args-map)
-          _         (println opts)
-          errors    (:errors args-map)
-          _         (if (seq? errors)
-                      (println errors))
-          mode      (:mode opts)]
-      (cond (= mode "server") (handle-starting-server opts)
-            (= mode "client") (handle-starting-client opts)))
-    (usage)))
+  (let [args-map (parse-args args)]
+    (if (nil? args-map)
+      (usage)
+      (let [_     (println args-map)
+            mode (:-m args-map)]
+        (cond (= mode "server") (handle-starting-server args-map)
+              (= mode "client") (handle-starting-client args-map)
+              :else (println "Invalid mode, must be server of client."))))))
 

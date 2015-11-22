@@ -5,7 +5,7 @@
 (def user-profile (atom {}))
 
 (defn- build-msg [msg]
-  (str (:handle-name @user-profile) "|" msg))
+  (str (:handle-name @user-profile) " says: " msg))
 
 (defn- prompt-for-input
   [prompt]
@@ -14,7 +14,6 @@
 
 (defn- get-input
   []
-  (prompt-for-input "$ ")
   (str (read-line) "\n"))
 
 (defn- get-handle-name
@@ -49,8 +48,8 @@
 
 (defn handle-starting-client
   [opts]
-  (let [ip      (:ip opts)
-        port    (:port opts)
+  (let [ip      (:-i opts)
+        port    (Integer/parseInt (:-p opts))
         handle  (get-handle-name)]
     (swap! user-profile assoc :handle-name handle)
     (start-client ip port)))
