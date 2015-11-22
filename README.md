@@ -19,7 +19,9 @@ Running a client:
 ## Options
 
 -m = mode, client or server
+
 -i = ip to server, to connect to a server. Server will automatically start on localhost.
+
 -p = port to use for connection
 
 ## License
